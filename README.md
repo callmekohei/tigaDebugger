@@ -29,13 +29,13 @@ has('python3')
 fsdebugger requires mono/sdb installed.
 
 ```
-$ git clone --depth 1 https://github.com/callmekohei/fsdebugger
+$ git clone --depth 1 https://github.com/callmekohei/tigaDebugger
 $ git clone --depth 1 https://github.com/roxma/nvim-yarp
 $ git clone --depth 1 https://github.com/roxma/vim-hug-neovim-rpc
 
 $ vim init.vim
 
-set runtimepath+=/path/to/fsdebugger
+set runtimepath+=/path/to/tigaDebugger
 set runtimepath+=/path/to/nvim-yarp
 set runtimepath+=/path/to/vim-hug-neovim-rpc
 ```
