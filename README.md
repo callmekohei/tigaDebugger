@@ -33,7 +33,7 @@ $ git clone --depth 1 https://github.com/callmekohei/tigaDebugger
 $ git clone --depth 1 https://github.com/roxma/nvim-yarp
 $ git clone --depth 1 https://github.com/roxma/vim-hug-neovim-rpc
 
-$ vim init.vim
+$ vim .vimrc
 
 set runtimepath+=/path/to/tigaDebugger
 set runtimepath+=/path/to/nvim-yarp
