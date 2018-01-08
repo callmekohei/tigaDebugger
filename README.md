@@ -26,8 +26,6 @@ has('python3')
 
 ## Installing
 
-fsdebugger requires mono/sdb installed.
-
 ```
 $ git clone --depth 1 https://github.com/callmekohei/tigaDebugger
 $ git clone --depth 1 https://github.com/roxma/nvim-yarp
@@ -42,6 +40,9 @@ set runtimepath+=/path/to/vim-hug-neovim-rpc
 
 
 ## Usage
+
+if you use `SDB` debugger,  tigaDebugger requires `SDB` installed.
+
 ```
 // open file
 $ vim foo.fsx
