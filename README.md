@@ -56,7 +56,7 @@ $ vim foo.fsx
 // debugger command
 : TigaCommand bp add at foo.fsx 3
 
-// quit sdb
+// quit debug mode
 : TigaQuit
 ```
 
