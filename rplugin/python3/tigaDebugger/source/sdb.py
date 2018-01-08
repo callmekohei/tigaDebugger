@@ -78,7 +78,6 @@ class SDB:
 
     def tiga_WatchDel(self,args):
         self.tiga_watch_deleted = args[0]
-        self.util.print_cmd(self.tiga_watch_deleted)
         return 'watch'
 
 
@@ -174,9 +173,6 @@ class SDB:
                     tmp = s.split(' ')
                     watchpoint_id = tmp[0].replace('\#','').strip("'")
                     watchpoint_variableName = tmp[1].strip(':').strip("'")
-
-                    self.util.print_cmd(watchpoint_variableName)
-                    self.util.print_cmd(self.tiga_watch_deleted)
 
                     if watchpoint_variableName == self.tiga_watch_deleted:
                         cmd_str = 'watch del {wp_id}'.format(wp_id=str(watchpoint_id))
