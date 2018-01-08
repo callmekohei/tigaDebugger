@@ -62,10 +62,10 @@ class TigaDebugger(object):
 
         if   args[0] == 'sdb':
             from tigaDebugger.source.sdb import SDB as td
-            self.set_debugerImpl(args)
+            self.set_debugerImpl(args,td)
         elif args[0] == 'gdb':
             from tigaDebugger.source.gdb import GDB as td
-            self.set_debugerImpl(args)
+            self.set_debugerImpl(args,td)
         else:
             self.util.print_cmd('Sorry! Now not avairable!')
 
