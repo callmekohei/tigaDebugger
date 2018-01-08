@@ -14,7 +14,7 @@ from tigaDebugger.quickbuffer import Quickbuffer
 class SDB:
 
     def __init__(self,nvim):
-        self.vim = nvim
+        self.vim  = nvim
         self.util = Util(self.vim)
         self.tiga_watch_deleted = ''
         self.source_file = self.util.expand( self.vim.eval( "substitute( expand('%:p') , '\#', '\\#' , 'g' )" ) )
@@ -117,8 +117,8 @@ class SDB:
             for s in lines:
 
                 ### << colored line >>
-                # ### e.g #0 [0x00000000] ABC.DEF.bar at /Users/callmekohei/tmp/sample/abc.fsx:5
-                # ### e.g #0 [0x00000000] Microsoft.FSharp.Core.PrintfFormat<Microsoft.FSharp.Core.FSharpFunc<int,Microsoft.FSharp.Core.Unit>,System.IO.TextWriter,Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit,int>..ctor at /private/tmp/mono--fsharp-20170917-21849-5wz89g/src/fsharp/FSharp.Core/printf.fs:9 (no source)
+                ### e.g #0 [0x00000000] ABC.DEF.bar at /Users/callmekohei/tmp/sample/abc.fsx:5
+                ### e.g #0 [0x00000000] Microsoft.FSharp.Core.PrintfFormat<Microsoft.FSharp.Core.FSharpFunc<int,Microsoft.FSharp.Core.Unit>,System.IO.TextWriter,Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit,int>..ctor at /private/tmp/mono--fsharp-20170917-21849-5wz89g/src/fsharp/FSharp.Core/printf.fs:9 (no source)
                 if s != '' and '[0x' in s and not ('no source' in s ):
 
                     lst = s.split(' ')
