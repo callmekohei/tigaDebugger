@@ -39,7 +39,16 @@ class SDB:
 ### ------------------------------------------------------------------------
 
     def tiga(self,args):
-        return 'term_start(["sdb","run {s}"],{{"out_cb":function("Tiga_Handler"), "vertical":1, "term_name":"tigaDebugger-terminal"}})'.format(s=args[0])
+
+        cmd       = "sdb"
+        cmd_param = "run {s}".format(s=args[0])
+        ts_param  = '{                               \
+              "out_cb"    : function("Tiga_Handler") \
+            , "vertical"  : 1                        \
+            , "term_name" : "tigaDebugger-terminal"  \
+        }'
+
+        return 'term_start(["{c}","{p0}"],{p1})'.format(c=cmd,p0=cmd_param,p1=ts_param)
 
     def tiga_Run(self):
         return 'run'
