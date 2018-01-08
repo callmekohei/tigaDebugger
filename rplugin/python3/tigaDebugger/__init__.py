@@ -11,8 +11,6 @@ import re
 from tigaDebugger.util import Util
 from tigaDebugger.quickbuffer import Quickbuffer
 
-from tigaDebugger.source.sdb import SDB as td
-
 @ neovim.plugin
 class TigaDebugger(object):
 
