@@ -54,6 +54,7 @@ class Quickbuffer:
 
 
     def buffer_move(self,name):
+
         while True:
             if self.vim.current.buffer.name == name:
                 break
@@ -62,21 +63,12 @@ class Quickbuffer:
 
     def toWrite(self,lines):
 
-        # lines.append('')
-
         [ self.buf_quickbuffer.append(line, line_number)
             for line, line_number in zip ( lines , range(0, len(lines)) ) ]
 
 
     def toWrite_watchWindow(self,lines):
 
-        ### e.g #0 'x': int it = 1
-        ### e.g #1 'y': int it = 2
-
         del self.buf_watch[:]
-        # l = list(set(lines))
-        # l.sort(key=lambda x:x[1])
         if not(not lines):
             self.buf_watch[0:] = lines
-
-
