@@ -103,6 +103,17 @@ class SDB:
         lst = list(map(lambda s:re.sub('#','\#',s),lst))
         lst = list(map(lambda s:re.sub('"',"'",s),lst))
 
+
+        ### << pick up current command range >>
+        ### -----------------------------------
+        ###   (sdb)
+        ###       step into
+        ###       foo
+        ###   (sdb)         <---+
+        ###       step out      |
+        ###       bar           |
+        ###   (sdb)         <---+
+
         reversed_lst = lst[::-1]
         cnt = 0
         fst = 0
@@ -142,6 +153,10 @@ class SDB:
                     self.vim.command(":highlight CursorLine ctermfg=Blue")
                     break
 
+
+                ### << exit >>
+                ### e.g Inferior process '13948' ('abc.exe') exited with code '0'
+                ### e.g Inferior process '17902' ('foo.exe') exited
                 elif ("exited with code '0'" in s) or ("exited" in s):
                     self.vim.command(":e {sourceFile}".format(sourceFile=self.source_file))
                     self.vim.command(":highlight clear CursorLine")
