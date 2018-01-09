@@ -230,7 +230,7 @@ function! Tiga_Handler(ch,msg) abort
         g:list = []
     endif
 
-    if stridx(a:msg,'(sdb)') > 0
+    if stridx(a:msg,'(sdb)') > 0 || stridx(a:msg,'(gdb)') > 0
         call add(g:list,a:msg)
         call Tiga_HandlerPy(g:list)
     endif
