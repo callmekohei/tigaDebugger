@@ -26,13 +26,13 @@ class SDB:
         self.source_file = self.util.expand( self.vim.eval( "substitute( expand('%:p') , '\#', '\\#' , 'g' )" ) )
         self.ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
 
-    def set_nr(self,nr):
         ### for my debug
         self.flg_mydebug = False
         if self.flg_mydebug:
             self.quickbuffer.createBuffer("tigaDebugger_fsharp")
             self.quickbuffer.toWrite(['hello'])
 
+    def startup_setting(self,nr):
         self.nr = nr
 
     def tiga_Command(self, args):
