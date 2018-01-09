@@ -16,7 +16,7 @@ class Quickbuffer:
         self.baseBuffer = self.vim.current.buffer
 
 
-    def createBuffer(self):
+    def createBuffer(self,fileType):
 
         name = 'quickbuffer-output'
 
@@ -27,7 +27,7 @@ class Quickbuffer:
 
         self.vim.command("vsplit {name}".format(name=name))
         self.vim.command("setlocal buftype=nofile")
-        self.vim.command("set filetype=tigaDebugger")
+        self.vim.command("set filetype={ft}".format(ft=fileType))
         self.vim.command("setlocal bufhidden=hide")
         self.vim.command("setlocal noswapfile")
         self.vim.command("setlocal nobuflisted")
@@ -63,9 +63,10 @@ class Quickbuffer:
 
     def toWrite(self,lines):
 
+        del self.buf_quickbuffer[:]
+
         [ self.buf_quickbuffer.append(line, line_number)
             for line, line_number in zip ( lines , range(0, len(lines)) ) ]
-
 
     def toWrite_watchWindow(self,lines):
 
