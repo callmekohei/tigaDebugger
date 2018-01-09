@@ -136,7 +136,9 @@ class GDB:
 
         lines = self.cutOutProperly('(gdb)',self.dataCleaning(args[0]))
 
-        self.quickbuffer.toWrite(lines)
+
+        if self.flg_mydebug:
+            self.quickbuffer.toWrite(lines)
 
         try:
 
