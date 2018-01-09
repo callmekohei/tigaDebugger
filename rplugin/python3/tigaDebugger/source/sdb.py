@@ -174,12 +174,13 @@ class SDB:
                 ### #0 's': string it = "aaa" (Primitive, Variable)
                 ### #2 's': string it = "aaa" (Primitive, Variable)
                 ### #3 's': string it = "aaa" (Primitive, Variable)
-                elif s != '' and 'watch' in s and not('add' in s) and not ('del' in s) :
+                elif s != '' and 'watch' in s and not('add' in s) and not ('del' in s) and not ('Added' in s) :
+                    self.util.print_cmd(s)
                     flg_watch = True
 
                 elif flg_watch == True:
                     tmp = s.split(' ')
-                    watchpoint_id = tmp[0].replace('\#','').strip("'")
+                    watchpoint_id = tmp[0].replace('#','').strip("'")
                     watchpoint_variableName = tmp[1].strip(':').strip("'")
 
                     if watchpoint_variableName == self.tiga_watch_deleted:
