@@ -15,11 +15,19 @@ class SDB:
 
     def __init__(self,nvim):
         self.vim  = nvim
+
         self.util = Util(self.vim)
+
         self.tiga_watch_deleted = ''
         self.source_file = self.util.expand( self.vim.eval( "substitute( expand('%:p') , '\#', '\\#' , 'g' )" ) )
 
     def set_nr(self,nr):
+        ### for my debug
+        self.flg_mydebug = False
+        if self.flg_mydebug:
+            self.quickbuffer.createBuffer("tigaDebugger_fsharp")
+            self.quickbuffer.toWrite(['hello'])
+
         self.nr = nr
 
     def tiga_Command(self, args):
@@ -129,6 +137,9 @@ class SDB:
                     ll[0] = re.sub('^.*\(sdb\)','(sdb)',ll[0])
                     lines = ll
                     break
+        if self.flg_mydebug:
+            if not ( not lines ):
+                self.quickbuffer.toWrite(lines)
 
         try:
 
