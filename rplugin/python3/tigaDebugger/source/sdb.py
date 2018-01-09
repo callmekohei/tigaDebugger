@@ -4,6 +4,7 @@
 #  License : MIT license
 # ===========================================================================
 
+import itertools
 import neovim
 import os
 import re
@@ -16,10 +17,14 @@ class SDB:
     def __init__(self,nvim):
         self.vim  = nvim
 
+        ### external util libraries
         self.util = Util(self.vim)
+        self.quickbuffer = Quickbuffer(self.vim)
 
+        ### global variables
         self.tiga_watch_deleted = ''
         self.source_file = self.util.expand( self.vim.eval( "substitute( expand('%:p') , '\#', '\\#' , 'g' )" ) )
+        self.ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
 
     def set_nr(self,nr):
         ### for my debug
@@ -104,39 +109,8 @@ class SDB:
 
     def tiga_HandlerPy(self, args):
 
-        lst = args[0]
-        ### TODO: more simple
-        lst = list(map(lambda s:s.replace('\r\n',' ') ,lst))
-        lst = list(map(lambda s:re.sub("\x1B\[([0-9]{1,2}(;[0-9]{1,2})*)?m","",s),lst))
-        lst = list(map(lambda s:re.sub('#','\#',s),lst))
-        lst = list(map(lambda s:re.sub('"',"'",s),lst))
+        lines = self.cutOutProperly('(sdb)', self.dataCleaning(args[0]))
 
-
-        ### << pick up current command range >>
-        ### -----------------------------------
-        ###   (sdb)
-        ###       step into
-        ###       foo
-        ###   (sdb)         <---+
-        ###       step out      |
-        ###       bar           |
-        ###   (sdb)         <---+
-
-        reversed_lst = lst[::-1]
-        cnt = 0
-        fst = 0
-        lines = []
-
-        for s,n in zip(reversed_lst,range(0,len(reversed_lst))):
-            if '(sdb)' in s:
-                cnt = cnt + 1
-                if cnt == 1:
-                    fst = cnt
-                if cnt == 2:
-                    ll = reversed_lst[:n + 1][::-1]
-                    ll[0] = re.sub('^.*\(sdb\)','(sdb)',ll[0])
-                    lines = ll
-                    break
         if self.flg_mydebug:
             if not ( not lines ):
                 self.quickbuffer.toWrite(lines)
@@ -204,7 +178,6 @@ class SDB:
                     flg_watch = True
 
                 elif flg_watch == True:
-
                     tmp = s.split(' ')
                     watchpoint_id = tmp[0].replace('\#','').strip("'")
                     watchpoint_variableName = tmp[1].strip(':').strip("'")
@@ -218,3 +191,39 @@ class SDB:
         ### list index out of range
         except Exception as e:
             self.util.print_cmd('"error: {err}"'.format(err=str(e)))
+
+
+    def cutOutProperly(self,prompt,lst):
+
+        # TODO: needs code for case of no endmark (sdb)
+
+        #  (sdb)
+        #      step into
+        #      foo
+        #  (sdb)         <---+
+        #      step out      |
+        #      bar           |
+        #  (sdb)         <---+
+
+        reversed_lst = lst[::-1]
+        cnt = 0
+
+        for s,n in zip(reversed_lst,range(0,len(reversed_lst)-1)):
+            if prompt in s:
+                cnt = cnt + 1
+                if cnt == 2:
+                    self.util.print_cmd(s)
+                    return reversed_lst[:n+1][::-1]
+                    break
+
+
+    def dataCleaning(self,rowlist):
+        lstObj = map(self.dataCleaningImpl,rowlist)
+        lstObj = itertools.chain.from_iterable(lstObj)
+        return list(filter(lambda s:s!='',lstObj))
+
+
+    def dataCleaningImpl(self,s):
+        s = s.replace('\r\n','\n').replace('"',"'").replace('\r','')
+        s = self.ansi_escape.sub('', s)
+        return s.split('\n')
