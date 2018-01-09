@@ -81,7 +81,7 @@ class TigaDebugger(object):
 
         if self.tiga_already_set_debugger:
             self.nr = self.vim.eval(self.td.tiga(args))
-            self.td.set_nr(self.nr)
+            self.td.startup_setting(self.nr)
             self.vim.command("wincmd p")
             self.tiga_debug_mode = True
             self.vim.command('write') ### for keymap
