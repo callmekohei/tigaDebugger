@@ -4,7 +4,7 @@
 
 # tigaDebugger
 
-debugger clinet framework for Vim8
+Tiny debugger clinet for FSharp on Vim8
 
 <br>
 <br>
@@ -17,6 +17,8 @@ debugger clinet framework for Vim8
 
 Vim8 has('python3')
 
+mono/sdb
+
 
 ## Installing
 
@@ -27,18 +29,16 @@ $ git clone --depth 1 https://github.com/roxma/vim-hug-neovim-rpc
 
 $ pip3 install neovim
 
+$ bash build.bash
+
 $ vim .vimrc
 
     set runtimepath+=/path/to/tigaDebugger
     set runtimepath+=/path/to/nvim-yarp
     set runtimepath+=/path/to/vim-hug-neovim-rpc
-
-$ bash build.bash
 ```
 
 ## Usage
-
-if you use `SDB` debugger,  tigaDebugger requires `SDB` installed.
 
 ```
 // open file
@@ -63,10 +63,10 @@ Add `--optimize-` parameter
 
 ```
 // create exe file
-$ fsharpc -g --optimize- foo.fs
+$ fsharpc -g --optimize- foo.fsx
 
 // create dll file
-$ fsharpc -a -g --optimize- foo.fs
+$ fsharpc -a -g --optimize- foo.fsx
 ```
 
 ## Debugger Shortcut Keys
