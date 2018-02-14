@@ -11,18 +11,12 @@ debugger clinet framework for Vim8
 
 ## ScreenShot
 
-![alt text](./pic/20170108.gif)  
+![alt text](./pic/20180215.gif)
 
 ## Requirements
 
-has('python3')
+Vim8 has('python3')
 
-```
-01. roxma/nvim-yarp
-02. roxma/vim-hug-neovim-rpc
-03. g:python3_host_prog pointed to your python3 executable, or echo exepath('python3') is not empty.
-04. neovim python client (pip3 install neovim)
-```
 
 ## Installing
 
@@ -31,13 +25,16 @@ $ git clone --depth 1 https://github.com/callmekohei/tigaDebugger
 $ git clone --depth 1 https://github.com/roxma/nvim-yarp
 $ git clone --depth 1 https://github.com/roxma/vim-hug-neovim-rpc
 
+$ pip3 install neovim
+
 $ vim .vimrc
 
-set runtimepath+=/path/to/tigaDebugger
-set runtimepath+=/path/to/nvim-yarp
-set runtimepath+=/path/to/vim-hug-neovim-rpc
-```
+    set runtimepath+=/path/to/tigaDebugger
+    set runtimepath+=/path/to/nvim-yarp
+    set runtimepath+=/path/to/vim-hug-neovim-rpc
 
+$ bash build.bash
+```
 
 ## Usage
 
@@ -60,7 +57,7 @@ $ vim foo.fsx
 : TigaQuit
 ```
 
-## About Compile ( For F# user )
+## About Compile
 
 Add `--optimize-` parameter
 
@@ -87,38 +84,3 @@ $ fsharpc -a -g --optimize- foo.fs
 | ctrl i        | Step <b>i</b>n | 
 | ctrl u        | Step out ( <b>U</b>p ) | 
 | ctrl c        | <b>C</b>ontinue |
-
-
-## Debugger Client Source
-
-
-If you wirte `debugger client source`, you use your favarite debugger.
-
-I am glad of you to write `debugger client source`.
-
-What is debugger client source?
-
-[like this](https://github.com/callmekohei/tigaDebugger/blob/master/rplugin/python3/tigaDebugger/source/sdb.py)
-```
-tigaDebugger$ tree
-.
-├── LICENSE
-├── README.md
-├── pic
-│   └── 20170108.gif
-├── plugin
-│   └── tigaDebugger.vim
-├── pythonx
-│   └── tigaDebugger_wrap.py
-├── rplugin
-│   └── python3
-│       └── tigaDebugger
-│           ├── __init__.py
-│           ├── quickbuffer.py
-│           ├── source
-│           │   └── sdb.py <--- this !!
-│           └── util.py
-└── syntax
-    └── tigaDebugger.vim
-```
-

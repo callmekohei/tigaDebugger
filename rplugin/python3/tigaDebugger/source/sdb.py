@@ -53,8 +53,10 @@ class SDB:
 
     def tiga(self,args):
 
+        self.exe = args[0]
+
         cmd       = "sdb"
-        cmd_param = "run {s}".format(s=args[0])
+        cmd_param = "mycmd run {s}".format(s=args[0])
         ts_param  = '{                               \
               "out_cb"    : function("Tiga_Handler") \
             , "vertical"  : 1                        \
@@ -64,7 +66,7 @@ class SDB:
         return 'term_start(["{c}","{p0}"],{p1})'.format(c=cmd,p0=cmd_param,p1=ts_param)
 
     def tiga_Run(self):
-        return 'run'
+        return 'mycmd run {file}'.format(file=self.exe)
 
     def tiga_Kill(self):
         return 'kill'
@@ -73,16 +75,16 @@ class SDB:
         return 'reset'
 
     def tiga_StepOver(self):
-        return 'step over'
+        return 'mycmd stepover'
 
     def tiga_StepInto(self):
-        return 'step into'
+        return 'mycmd stepinto'
 
     def tiga_StepOut(self):
-        return 'step out'
+        return 'mycmd stepout'
 
     def tiga_Continue(self):
-        return 'continue'
+        return 'mycmd continue'
 
     def tiga_Breakpoints(self):
         fp      = self.util.expand( self.vim.eval( "substitute( expand('%:p') , '\#', '\\#' , 'g' )" ) )
