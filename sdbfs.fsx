@@ -281,7 +281,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOver () )
+        override __.Process(args) = func (gatherOutput stepInto () )
 
     type MyStepOut() =
         inherit Command()
@@ -289,7 +289,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOver () )
+        override __.Process(args) = func (gatherOutput stepOut () )
 
     type MyContinue() =
         inherit Command()
@@ -297,7 +297,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOver () )
+        override __.Process(args) = func (gatherOutput Continue () )
 
     [<Sealed; Command>]
     type MyCommand() =
@@ -311,3 +311,5 @@ module Foo =
         override this.Summary = ""
         override this.Syntax  = ""
         override this.Help    = ""
+
+
