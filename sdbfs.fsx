@@ -274,12 +274,16 @@ module Foo =
         Log.Info(line02)
         localVariables() |> Async.RunSynchronously
         watches()        |> Async.RunSynchronously
+
         Log.Info(line03)
         stack()          |> Async.RunSynchronously
+
         Log.Info(line04)
         threadList()     |> Async.RunSynchronously
+
         Log.Info(line05)
         Assembly()       |> Async.RunSynchronously
+
         Log.Info(line01)
         Log.Info(s)
 
@@ -336,5 +340,3 @@ module Foo =
         override this.Summary = ""
         override this.Syntax  = ""
         override this.Help    = ""
-
-
