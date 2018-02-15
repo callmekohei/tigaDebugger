@@ -151,7 +151,7 @@ module Foo =
         with e -> Log.Info(e.Message)
     }
 
-
+    // TODO: more improve!
     let gatherOutput f args =
 
         try
@@ -169,9 +169,10 @@ module Foo =
             let mutable tmp = int64 0
             let mutable flg = true
 
+            // it seems not to do well...
             while flg = true do
                 // wait for output
-                System.Threading.Thread.Sleep 100
+                System.Threading.Thread.Sleep 150
 
                 if tmp = int64 0 then
                     tmp <- ms.Position
