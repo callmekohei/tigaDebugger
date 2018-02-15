@@ -193,10 +193,35 @@ module Foo =
         with e -> e.Message
 
 
-    let run args =
-        try
-            Debugger.Run(new FileInfo(args))
-        with e -> Log.Info(e.Message)
+    let run (args:string) =
+
+        if (Debugger.State <> State.Exited) then
+            Log.Error("an inferior process is already being debugged")
+            ()
+
+        elif not (File.Exists(args)) then
+            Log.Error("program executable '{0}' does not exist", args)
+            ()
+
+        elif (args.Length = 0) && (Debugger.CurrentExecutable = null) then
+            Log.Error("no program path given (and no previous program to re-run)")
+            ()
+
+        elif (args.Length = 0) && (Debugger.CurrentExecutable <> null) then
+
+            try
+                let file = new FileInfo(Debugger.CurrentExecutable.FullName)
+                Debugger.Run(file)
+            with e ->
+                Log.Error("could not open file '{0}':", args)
+                Log.Error( e.Message )
+        else
+            try
+                let file = new FileInfo(args)
+                Debugger.Run(file)
+            with e ->
+                Log.Error("could not open file '{0}':", args)
+                Log.Error( e.Message )
 
 
     let stepOver() =
