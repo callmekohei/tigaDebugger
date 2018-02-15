@@ -38,7 +38,7 @@ function! s:command_custom() abort
     command! -nargs=? -buffer TigaCommand : call Tiga_Command(<f-args>)
 
     " start and quit
-    command! -nargs=? -buffer -complete=customlist,DebuggerList TigaSetDebugger : call Tiga_Set_Debugger(<f-args>)
+    " command! -nargs=? -buffer -complete=customlist,DebuggerList TigaSetDebugger : call Tiga_Set_Debugger(<f-args>)
     command! -nargs=? -buffer -complete=file Tiga : call Tiga(<f-args>)
     command! -buffer TigaQuit                     : call Tiga_Quit()
 
@@ -53,9 +53,9 @@ function! s:command_custom() abort
 
 endfunction
 
-function! DebuggerList(lead, line, pos)
-  return ["sdb","gdb"]
-endfunction
+" function! DebuggerList(lead, line, pos)
+"   return ["sdb","gdb"]
+" endfunction
 
 
 function! s:nnoremap_custom() abort
@@ -263,9 +263,9 @@ if !has('nvim')
 
 
     " set debugger, start and quit
-    func! Tiga_Set_Debugger(v)
-        return s:tigaDebugger.call('tiga_Set_Debugger',a:v)
-    endfunc
+    " func! Tiga_Set_Debugger(v)
+    "     return s:tigaDebugger.call('tiga_Set_Debugger',a:v)
+    " endfunc
 
     func! Tiga(v)
         return s:tigaDebugger.call('tiga',a:v)

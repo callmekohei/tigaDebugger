@@ -28,8 +28,8 @@ def tiga_Command(*args):
 
 
 ### start and quit
-def tiga_Set_Debugger(*args):
-    return _obj.tiga_Set_Debugger(args)
+# def tiga_Set_Debugger(*args):
+#     return _obj.tiga_Set_Debugger(args)
 
 def tiga(*args):
     return _obj.tiga(args)
