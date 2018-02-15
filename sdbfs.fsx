@@ -171,7 +171,7 @@ module Foo =
 
             while flg = true do
                 // wait for output
-                System.Threading.Thread.Sleep 50
+                System.Threading.Thread.Sleep 100
 
                 if tmp = int64 0 then
                     tmp <- ms.Position
