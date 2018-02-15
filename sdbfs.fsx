@@ -272,21 +272,26 @@ module Foo =
         let line05 = Color.DarkBlue + "─── " + Color.DarkYellow + "Assembly "        + Color.DarkBlue  + String.replicate (width - 4 -  9) "─"
         let line06 = Color.DarkBlue + String.replicate width "─"
 
-        Log.Info(line02)
-        localVariables() |> Async.RunSynchronously
-        watches()        |> Async.RunSynchronously
 
-        Log.Info(line03)
-        stack()          |> Async.RunSynchronously
+        if Debugger.Breakpoints.Count = 0 then
+            Log.Info(line01)
+            Log.Info(s)
+        else
+            Log.Info(line02)
+            localVariables() |> Async.RunSynchronously
+            watches()        |> Async.RunSynchronously
 
-        Log.Info(line04)
-        threadList()     |> Async.RunSynchronously
+            Log.Info(line03)
+            stack()          |> Async.RunSynchronously
 
-        Log.Info(line05)
-        Assembly()       |> Async.RunSynchronously
+            Log.Info(line04)
+            threadList()     |> Async.RunSynchronously
 
-        Log.Info(line01)
-        Log.Info(s)
+            Log.Info(line05)
+            Assembly()       |> Async.RunSynchronously
+
+            Log.Info(line01)
+            Log.Info(s)
 
 
     type MyRun() =
