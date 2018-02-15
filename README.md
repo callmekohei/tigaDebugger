@@ -41,11 +41,11 @@ $ vim .vimrc
 ## Usage
 
 ```
+// compiel file
+$ fsharpc -g --optimize- foo.fsx
+
 // open file
 $ vim foo.fsx
-
-// set debugger
-: TigaSetDebugger sdb
 
 // start debug mode
 : Tiga foo.exe
