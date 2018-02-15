@@ -11,7 +11,7 @@ Tiny debugger clinet for FSharp on Vim8
 
 ## ScreenShot
 
-![alt text](./pic/20180215.gif)
+![alt text](./pic/20180216.gif)
 
 ## Requirements
 
