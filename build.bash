@@ -3,7 +3,7 @@ declare -a arr=(
     --nologo
     -a
     -r:$(dirname $(which sdb))/../lib/sdb/sdb.exe
-    sdbfs.fsx
+    ./sdbPlugins/sdbfs.fsx
     --out:$HOME/.sdb/test.dll
 )
 
