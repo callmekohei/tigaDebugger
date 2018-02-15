@@ -15,6 +15,7 @@ open Mono.Debugging.Client
 
 open System
 open System.IO
+open System.Text
 
 module Foo =
 
@@ -151,50 +152,67 @@ module Foo =
         with e -> Log.Info(e.Message)
     }
 
-    // TODO: more improve!
-    let gatherOutput f args =
+
+    let gatherOutputImpl(ms:MemoryStream, time_ms:int) =
+
+        let sr = new System.IO.StreamReader(ms)
+        let mutable tmp = int64 0
+        let mutable flg = true
+
+        while flg = true do
+
+            System.Threading.Thread.Sleep time_ms
+
+            if tmp = int64 0 then
+                tmp <- ms.Position
+            else
+                if tmp = ms.Position then
+                    flg <- false
+                else
+                    tmp <- ms.Position
+
+        ms.Position <- int64 0
+        sr.ReadToEnd()
+
+
+    let gatherOutput f args = async {
 
         try
-            // Switch MemoryStream
+            // Switch from StandardOut to MemoryStream
             let ms = new MemoryStream()
             let sw = new StreamWriter(ms)
             let tw = TextWriter.Synchronized(sw)
             sw.AutoFlush <- true
             Console.SetOut(tw)
 
-            f args
+            do! f args
 
-            // read data from MemoryStream
-            let sr = new System.IO.StreamReader(ms)
-            let mutable tmp = int64 0
+            // read from MemoryStream
+            let mutable s = ""
             let mutable flg = true
-
-            // it seems not to do well...
+            let sw = new System.Diagnostics.Stopwatch()
+            sw.Start()
             while flg = true do
-                // wait for output
-                System.Threading.Thread.Sleep 150
-
-                if tmp = int64 0 then
-                    tmp <- ms.Position
+                s <- gatherOutputImpl(ms,50)
+                if s.Contains("exited") || s.Contains("Hit breakpoint at") || s.Contains("suspended") then
+                    flg <- false
+                elif sw.Elapsed.TotalSeconds > 5. then
+                    flg <- false
                 else
-                    if tmp = ms.Position then
-                        flg <- false
-                    else
-                        tmp <- ms.Position
+                    s <- gatherOutputImpl(ms,50)
 
-            ms.Position <- int64 0
-            let rtn = sr.ReadToEnd()
-
-            // Switch StandardOut
+            // Switch from MemoryStream to StandardOut
             let std = new StreamWriter(Console.OpenStandardOutput())
             std.AutoFlush <- true
             Console.SetOut(std)
 
-            rtn
-        with e -> e.Message
+            return s
+
+        with e -> return e.Message
+    }
 
 
-    let run (args:string) =
+    let run (args:string) = async {
 
         if (Debugger.State <> State.Exited) then
             Log.Error("an inferior process is already being debugged")
@@ -223,45 +241,48 @@ module Foo =
             with e ->
                 Log.Error("could not open file '{0}':", args)
                 Log.Error( e.Message )
+    }
 
 
-    let stepOver() =
+    let stepOver() = async {
         try
             if (Debugger.State = State.Suspended) then
                 Debugger.StepOverLine()
             else
                 Log.Error("No suspended inferior process")
         with e -> Log.Info(e.Message)
+    }
 
-
-    let stepInto() =
+    let stepInto() = async {
         try
             if (Debugger.State = State.Suspended) then
                 Debugger.StepIntoLine()
             else
                 Log.Error("No suspended inferior process")
         with e -> Log.Info(e.Message)
+    }
 
-
-    let stepOut() =
+    let stepOut() = async {
         try
             if (Debugger.State = State.Suspended) then
                 Debugger.StepOutOfMethod()
             else
                 Log.Error("No suspended inferior process")
         with e -> Log.Info(e.Message)
+    }
 
-
-    let Continue() =
+    let Continue() = async {
         try
             if (Debugger.State = State.Exited) then
                 Log.Error("No inferior process")
             else
                 Debugger.Continue()
         with e -> Log.Info(e.Message)
+    }
 
 
-    let func s =
+    let func s = async {
+
         System.Console.Clear()
 
         let width = System.Console.WindowWidth
@@ -272,26 +293,23 @@ module Foo =
         let line05 = Color.DarkBlue + "─── " + Color.DarkYellow + "Assembly "        + Color.DarkBlue  + String.replicate (width - 4 -  9) "─"
         let line06 = Color.DarkBlue + String.replicate width "─"
 
+        Log.Info(line02)
+        localVariables() |> Async.RunSynchronously
+        watches()        |> Async.RunSynchronously
 
-        if Debugger.Breakpoints.Count = 0 then
-            Log.Info(line01)
-            Log.Info(s)
-        else
-            Log.Info(line02)
-            localVariables() |> Async.RunSynchronously
-            watches()        |> Async.RunSynchronously
+        Log.Info(line03)
+        stack()          |> Async.RunSynchronously
 
-            Log.Info(line03)
-            stack()          |> Async.RunSynchronously
+        Log.Info(line04)
+        threadList()     |> Async.RunSynchronously
 
-            Log.Info(line04)
-            threadList()     |> Async.RunSynchronously
+        Log.Info(line05)
+        Assembly()       |> Async.RunSynchronously
 
-            Log.Info(line05)
-            Assembly()       |> Async.RunSynchronously
+        Log.Info(line01)
+        Log.Info(s)
 
-            Log.Info(line01)
-            Log.Info(s)
+    }
 
 
     type MyRun() =
@@ -300,7 +318,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput run args)
+        override __.Process(args) = func (gatherOutput run args |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyStepOver() =
         inherit Command()
@@ -308,7 +326,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOver () )
+        override __.Process(args) = func (gatherOutput stepOver () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyStepInto() =
         inherit Command()
@@ -316,7 +334,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepInto () )
+        override __.Process(args) = func (gatherOutput stepInto () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyStepOut() =
         inherit Command()
@@ -324,7 +342,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOut () )
+        override __.Process(args) = func (gatherOutput stepOut () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyContinue() =
         inherit Command()
@@ -332,7 +350,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput Continue () )
+        override __.Process(args) = func (gatherOutput Continue () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     [<Sealed; Command>]
     type MyCommand() =
