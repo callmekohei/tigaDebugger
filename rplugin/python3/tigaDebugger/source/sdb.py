@@ -56,7 +56,7 @@ class SDB:
         self.exe = args[0]
 
         cmd       = "sdb"
-        cmd_param = "mycmd run {s}".format(s=args[0])
+        cmd_param = "run {s}".format(s=args[0])
         ts_param  = '{                               \
               "out_cb"    : function("Tiga_Handler") \
             , "vertical"  : 1                        \
