@@ -64,6 +64,51 @@ module Foo =
     }
 
 
+    let backTrace() = async{
+
+        try
+            let p = Debugger.ActiveProcess
+            let t = Debugger.ActiveThread
+
+            if (p = null) then
+                Log.Error("No active inferior process")
+            elif t = null then
+                Log.Error("No active thread")
+            else
+                let threads = p.GetThreads()
+
+                for i in [0..(threads.Length - 1)] do
+                    let t = threads.[i]
+                    let str = Utilities.StringizeThread(t, false)
+
+                    if (t = Debugger.ActiveThread) then
+                        Log.Emphasis(str)
+                    else
+                        Log.Info(str)
+
+                    let bt = t.Backtrace
+
+                    if (bt.FrameCount <> 0) then
+                        for j in [0..(bt.FrameCount - 1)] do
+                            let f = bt.GetFrame(j);
+                            let fstr = Utilities.StringizeFrame(f, true)
+
+                            if (f = Debugger.ActiveFrame) then
+                                Log.Emphasis(fstr)
+                            else
+                                Log.Info(fstr)
+                    else
+                        Log.Info("Backtrace for this thread is unavailable")
+
+                    if (i < threads.Length - 1) then
+                        Log.Info(String.Empty)
+
+        with e -> Log.Info(e.Message)
+    }
+
+
+
+
     let threadList() = async {
 
         try
@@ -71,26 +116,26 @@ module Foo =
             let p = Debugger.ActiveProcess
             if (p = null) then
                 Log.Error("No active inferior process")
-
-            let t = Debugger.ActiveThread
-            if t = null then
-                Log.Error("No active thread")
             else
-                let threads = p.GetThreads()
+                let t = Debugger.ActiveThread
+                if t = null then
+                    Log.Error("No active thread")
+                else
+                    let threads = p.GetThreads()
 
-                let mutable i = 0
-                // for (var i = 0; i < threads.Length; i++)
-                for i in [0..(threads.Length - 1)] do
-                    let t = threads.[i]
-                    let str = Utilities.StringizeThread(t, true);
+                    let mutable i = 0
+                    // for (var i = 0; i < threads.Length; i++)
+                    for i in [0..(threads.Length - 1)] do
+                        let t = threads.[i]
+                        let str = Utilities.StringizeThread(t, true);
 
-                    if (t = Debugger.ActiveThread) then
-                        Log.Emphasis(str)
-                    else
-                        Log.Info(str)
+                        if (t = Debugger.ActiveThread) then
+                            Log.Emphasis(str)
+                        else
+                            Log.Info(str)
 
-                    if (i < (threads.Length - 1)) then
-                        Log.Info(String.Empty)
+                        if (i < (threads.Length - 1)) then
+                            Log.Info(String.Empty)
 
         with e -> Log.Info(e.Message)
     }
@@ -286,11 +331,13 @@ module Foo =
         System.Console.Clear()
 
         let width = System.Console.WindowWidth
-        let line01 = Color.DarkBlue + "─── " + Color.DarkYellow + "Output/messages " + Color.DarkBlue  + String.replicate (width - 4 - 16) "─"
         let line02 = Color.DarkBlue + "─── " + Color.DarkYellow + "Expressions "     + Color.DarkBlue  + String.replicate (width - 4 - 12) "─"
-        let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "Stack "           + Color.DarkBlue  + String.replicate (width - 4 -  6) "─"
+        // let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "Stack "           + Color.DarkBlue  + String.replicate (width - 4 -  6) "─"
+        let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "BackTrace "       + Color.DarkBlue  + String.replicate (width - 4 - 10) "─"
+        // let line04 = Color.DarkBlue + "─── " + Color.DarkYellow + "Threads "         + Color.DarkBlue  + String.replicate (width - 4 -  8) "─"
         let line04 = Color.DarkBlue + "─── " + Color.DarkYellow + "Threads "         + Color.DarkBlue  + String.replicate (width - 4 -  8) "─"
         let line05 = Color.DarkBlue + "─── " + Color.DarkYellow + "Assembly "        + Color.DarkBlue  + String.replicate (width - 4 -  9) "─"
+        let line01 = Color.DarkBlue + "─── " + Color.DarkYellow + "Output/messages " + Color.DarkBlue  + String.replicate (width - 4 - 16) "─"
         let line06 = Color.DarkBlue + String.replicate width "─"
 
         Log.Info(line02)
@@ -298,10 +345,11 @@ module Foo =
         watches()        |> Async.RunSynchronously
 
         Log.Info(line03)
-        stack()          |> Async.RunSynchronously
+        backTrace()         |> Async.RunSynchronously
+        // stack()          |> Async.RunSynchronously
 
-        Log.Info(line04)
-        threadList()     |> Async.RunSynchronously
+        // Log.Info(line04)
+        // threadList()     |> Async.RunSynchronously
 
         Log.Info(line05)
         Assembly()       |> Async.RunSynchronously
