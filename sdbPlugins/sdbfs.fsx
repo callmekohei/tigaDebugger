@@ -196,7 +196,7 @@ module Foo =
                 s <- gatherOutputImpl(ms,50)
                 if s.Contains("exited") || s.Contains("Hit breakpoint at") || s.Contains("suspended") then
                     flg <- false
-                elif sw.Elapsed.TotalSeconds > 5. then
+                elif sw.Elapsed.TotalSeconds > 2.5 then
                     flg <- false
                 else
                     s <- gatherOutputImpl(ms,50)
