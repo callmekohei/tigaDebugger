@@ -14,28 +14,38 @@ Tiny debugger clinet for FSharp on Vim8
 ![alt text](./pic/20180217.gif)
 
 ## Requirements
+```
+vim8
 
-Vim8 has('python3')
+$ vim --version | grep 'terminal'
++terminal
+
+$ vim --version | grep 'python3'
++python3
 
 mono/sdb
-
+```
 
 ## Installing
 
 ```
+// download vim plugins
 $ git clone --depth 1 https://github.com/callmekohei/tigaDebugger
 $ git clone --depth 1 https://github.com/roxma/nvim-yarp
 $ git clone --depth 1 https://github.com/roxma/vim-hug-neovim-rpc
 
+// install neovim plugins ( needs for roxma/vim-hug-neovim-rpc )
 $ pip3 install neovim
 
-$ bash build.bash
-
+// set runtimepath
 $ vim .vimrc
 
     set runtimepath+=/path/to/tigaDebugger
     set runtimepath+=/path/to/nvim-yarp
     set runtimepath+=/path/to/vim-hug-neovim-rpc
+
+// install mono/sdb plugins
+$ bash build.bash
 ```
 
 ## Usage
@@ -57,28 +67,6 @@ $ vim foo.fsx
 : TigaQuit
 ```
 
-## About Compile
-
-Add `--optimize-` parameter
-
-```
-// create exe file
-$ fsharpc -g --optimize- foo.fsx
-
-// create dll file
-$ fsharpc -a -g --optimize- foo.fsx
-```
-
-## About Vim's Terminal
-```
-// vim mode
-ctrl w
-shift n
-
-// terminal mode
-i
-```
-
 ## Debugger Shortcut Keys
 
 | Press         | To            |
@@ -94,3 +82,54 @@ i
 | ctrl i        | Step <b>i</b>n | 
 | ctrl u        | Step out ( <b>U</b>p ) | 
 | ctrl c        | <b>C</b>ontinue |
+
+
+## About Compile
+
+Add `--optimize-` parameter
+
+```
+// create exe file
+$ fsharpc -g --optimize- foo.fsx
+
+// create dll file
+$ fsharpc -a -g --optimize- foo.fsx
+```
+
+## About Vim's Terminal
+```
+// vim mode ( enable to scroll )
+ctrl w
+shift n
+
+// terminal mode
+i
+```
+
+## About Top-Level variables
+
+Please add manually
+
+
+(sample code)
+```fsharp
+// file name is foo.fsx
+
+module Bar =
+    let mutable x = "hello"
+    x <- "world"
+    stdout.WriteLine(x)
+```
+
+( tiga command )
+```
+: TigaWatchAdd Foo.Bar.x
+```
+
+(result)
+```
+─── Expressions ─────────────────
+No locals
+#0 'Foo.Bar.x':string it = "hello"
+```
+
