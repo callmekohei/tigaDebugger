@@ -69,6 +69,16 @@ $ fsharpc -g --optimize- foo.fsx
 $ fsharpc -a -g --optimize- foo.fsx
 ```
 
+## About Vim's Terminal
+```
+// vim mode
+ctrl w
+shift n
+
+// terminal mode
+i
+```
+
 ## Debugger Shortcut Keys
 
 | Press         | To            |
