@@ -113,6 +113,7 @@ class SDB:
 
         lines = self.cutOutProperly('(sdb)', self.dataCleaning(args[0]))
 
+
         if self.flg_mydebug:
             if not ( not lines ):
                 self.quickbuffer.toWrite(lines)
@@ -177,7 +178,6 @@ class SDB:
                 ### #2 's': string it = "aaa" (Primitive, Variable)
                 ### #3 's': string it = "aaa" (Primitive, Variable)
                 elif s != '' and 'watch' in s and not('add' in s) and not ('del' in s) and not ('Added' in s) :
-                    self.util.print_cmd(s)
                     flg_watch = True
 
                 elif flg_watch == True:
@@ -198,8 +198,6 @@ class SDB:
 
     def cutOutProperly(self,prompt,lst):
 
-        # TODO: needs code for case of no endmark (sdb)
-
         #  (sdb)
         #      step into
         #      foo
@@ -215,9 +213,18 @@ class SDB:
             if prompt in s:
                 cnt = cnt + 1
                 if cnt == 2:
-                    self.util.print_cmd(s)
                     return reversed_lst[:n+1][::-1]
                     break
+
+        #  Welcome...    <---+
+        #      ...           |
+        #      ...           |
+        #  (sdb)         <---+
+
+        if cnt == 1:
+            return lst
+        else:
+            return None
 
 
     def dataCleaning(self,rowlist):
