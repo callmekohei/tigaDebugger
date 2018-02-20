@@ -16,6 +16,7 @@ open Mono.Debugging.Client
 open System
 open System.IO
 open System.Text
+open System.Diagnostics
 
 module Foo =
 
@@ -356,6 +357,10 @@ module Foo =
 
         Log.Info(line01)
         Log.Info(s)
+
+        Process.Start("stty","echo")
+        System.Threading.Thread.Sleep 5
+        ()
 
     }
 
