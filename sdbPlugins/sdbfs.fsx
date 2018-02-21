@@ -199,6 +199,57 @@ module Foo =
     }
 
 
+    let Source (args:string) =
+
+        let f = Debugger.ActiveFrame
+
+        if (f = null) then
+            Log.Error("No active stack frame")
+        else
+
+            let lower = 5
+            let upper = 5
+
+            let loc  = f.SourceLocation
+            let file = loc.FileName
+            let line = loc.Line
+
+            if file <> null && line <> -1 then
+                if not ( File.Exists(file) ) then
+                    Log.Error("Source file '{0}' not found", file);
+                else
+                    try
+                        use reader = new StreamReader (file)
+
+                        let exec = Debugger.CurrentExecutable
+
+                        if (exec <> null && File.GetLastWriteTime(file) > exec.LastWriteTime) then
+                            Log.Notice("Source file '{0}' is newer than the debuggee executable", file)
+
+                        let mutable cur:int = 0
+
+                        while ( not reader.EndOfStream ) do
+                            let str = reader.ReadLine()
+
+                            let i = line - cur
+                            let j = cur - line
+
+                            if (i > 0 && i < lower + 2 || j >= 0 && j < upper) then
+
+                                if (cur = line - 1) then
+                                    Log.Info( String.Format("{0,8}: >> {1}" , cur + 1 , Color.Red + str + Color.Reset) )
+                                else
+                                    Log.Info( String.Format("{0,8}:    {1}", cur + 1, str) )
+
+                            cur <- cur + 1
+                    with e ->
+                        Log.Error("Could not open source file '{0}'", file)
+                        Log.Error( e.Message )
+
+            else
+                Log.Error("No source information available")
+
+
     let gatherOutputImpl(ms:MemoryStream, time_ms:int) =
 
         let sr = new System.IO.StreamReader(ms)
@@ -264,10 +315,6 @@ module Foo =
             Log.Error("an inferior process is already being debugged")
             ()
 
-        elif not (File.Exists(args)) then
-            Log.Error("program executable '{0}' does not exist", args)
-            ()
-
         elif (args.Length = 0) && (Debugger.CurrentExecutable = null) then
             Log.Error("no program path given (and no previous program to re-run)")
             ()
@@ -280,6 +327,11 @@ module Foo =
             with e ->
                 Log.Error("could not open file '{0}':", args)
                 Log.Error( e.Message )
+
+        elif not (File.Exists( args )) then
+            Log.Error("program executable '{0}' does not exist", args)
+            ()
+
         else
             try
                 let file = new FileInfo(args)
@@ -327,43 +379,37 @@ module Foo =
     }
 
 
-    let func s = async {
+    // command foo
+
+    let func args s = async {
 
         System.Console.Clear()
 
         let width = System.Console.WindowWidth
-        let line02 = Color.DarkBlue + "─── " + Color.DarkYellow + "Expressions "     + Color.DarkBlue  + String.replicate (width - 4 - 12) "─"
-        // let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "Stack "           + Color.DarkBlue  + String.replicate (width - 4 -  6) "─"
-        let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "BackTrace "       + Color.DarkBlue  + String.replicate (width - 4 - 10) "─"
-        // let line04 = Color.DarkBlue + "─── " + Color.DarkYellow + "Threads "         + Color.DarkBlue  + String.replicate (width - 4 -  8) "─"
-        let line04 = Color.DarkBlue + "─── " + Color.DarkYellow + "Threads "         + Color.DarkBlue  + String.replicate (width - 4 -  8) "─"
-        let line05 = Color.DarkBlue + "─── " + Color.DarkYellow + "Assembly "        + Color.DarkBlue  + String.replicate (width - 4 -  9) "─"
-        let line01 = Color.DarkBlue + "─── " + Color.DarkYellow + "Output/messages " + Color.DarkBlue  + String.replicate (width - 4 - 16) "─"
-        let line06 = Color.DarkBlue + String.replicate width "─"
+        let line00 = Color.DarkBlue + "─── " + Color.DarkYellow + "Expressions "     + Color.DarkBlue  + String.replicate (width - 4 - 12) "─"
+        let line01 = Color.DarkBlue + "─── " + Color.DarkYellow + "BackTrace "       + Color.DarkBlue  + String.replicate (width - 4 - 10) "─"
+        let line02 = Color.DarkBlue + "─── " + Color.DarkYellow + "Source "          + Color.DarkBlue  + String.replicate (width - 4 -  9) "─"
+        let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "Output/messages " + Color.DarkBlue  + String.replicate (width - 4 - 16) "─"
 
-        Log.Info(line02)
+        Log.Info(line00)
         localVariables() |> Async.RunSynchronously
         watches()        |> Async.RunSynchronously
 
-        Log.Info(line03)
-        backTrace()         |> Async.RunSynchronously
-        // stack()          |> Async.RunSynchronously
-
-        // Log.Info(line04)
-        // threadList()     |> Async.RunSynchronously
-
-        Log.Info(line05)
-        Assembly()       |> Async.RunSynchronously
-
         Log.Info(line01)
+        backTrace()         |> Async.RunSynchronously
+
+        Log.Info(line02)
+        Source(args)
+
+        Log.Info(line03)
         Log.Info(s)
 
-        Process.Start("stty","echo")
+        // enable to echoback
+        Process.Start("stty","echo") |> ignore
         System.Threading.Thread.Sleep 5
         ()
 
     }
-
 
     type MyRun() =
         inherit Command()
@@ -371,7 +417,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput run args |> Async.RunSynchronously) |> Async.RunSynchronously
+        override __.Process(args) = func args (gatherOutput run args |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyStepOver() =
         inherit Command()
@@ -379,7 +425,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOver () |> Async.RunSynchronously) |> Async.RunSynchronously
+        override __.Process(args) = func args (gatherOutput stepOver () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyStepInto() =
         inherit Command()
@@ -387,7 +433,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepInto () |> Async.RunSynchronously) |> Async.RunSynchronously
+        override __.Process(args) = func args (gatherOutput stepInto () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyStepOut() =
         inherit Command()
@@ -395,7 +441,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput stepOut () |> Async.RunSynchronously) |> Async.RunSynchronously
+        override __.Process(args) = func args (gatherOutput stepOut () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     type MyContinue() =
         inherit Command()
@@ -403,7 +449,7 @@ module Foo =
         override __.Summary       = ""
         override __.Syntax        = ""
         override __.Help          = ""
-        override __.Process(args) = func (gatherOutput Continue () |> Async.RunSynchronously) |> Async.RunSynchronously
+        override __.Process(args) = func args (gatherOutput Continue () |> Async.RunSynchronously) |> Async.RunSynchronously
 
     [<Sealed; Command>]
     type MyCommand() =
@@ -413,7 +459,93 @@ module Foo =
         do base.AddCommand<MyStepInto>()
         do base.AddCommand<MyStepOut>()
         do base.AddCommand<MyContinue>()
-        override this.Names   = [|"mycmd"|]
+        override this.Names   = [|"foo"|]
+        override this.Summary = ""
+        override this.Syntax  = ""
+        override this.Help    = ""
+
+
+    // command bar
+
+    let func_bar args s = async {
+
+        System.Console.Clear()
+
+        let width = System.Console.WindowWidth
+        let line00 = Color.DarkBlue + "─── " + Color.DarkYellow + "Expressions "     + Color.DarkBlue  + String.replicate (width - 4 - 12) "─"
+        let line01 = Color.DarkBlue + "─── " + Color.DarkYellow + "BackTrace "       + Color.DarkBlue  + String.replicate (width - 4 - 10) "─"
+        let line02 = Color.DarkBlue + "─── " + Color.DarkYellow + "Assembly "        + Color.DarkBlue  + String.replicate (width - 4 -  9) "─"
+        let line03 = Color.DarkBlue + "─── " + Color.DarkYellow + "Output/messages " + Color.DarkBlue  + String.replicate (width - 4 - 16) "─"
+
+        Log.Info(line00)
+        localVariables() |> Async.RunSynchronously
+        watches()        |> Async.RunSynchronously
+
+        Log.Info(line01)
+        backTrace()         |> Async.RunSynchronously
+
+        Log.Info(line02)
+        Assembly()       |> Async.RunSynchronously
+
+        Log.Info(line03)
+        Log.Info(s)
+
+        // enable to echoback
+        Process.Start("stty","echo") |> ignore
+        System.Threading.Thread.Sleep 5
+        ()
+
+    }
+
+    type MyRunBar() =
+        inherit Command()
+        override __.Names         = [|"run"|]
+        override __.Summary       = ""
+        override __.Syntax        = ""
+        override __.Help          = ""
+        override __.Process(args) = func_bar args (gatherOutput run args |> Async.RunSynchronously) |> Async.RunSynchronously
+
+    type MyStepOverBar() =
+        inherit Command()
+        override __.Names         = [|"stepover"|]
+        override __.Summary       = ""
+        override __.Syntax        = ""
+        override __.Help          = ""
+        override __.Process(args) = func_bar args (gatherOutput stepOver () |> Async.RunSynchronously) |> Async.RunSynchronously
+
+    type MyStepIntoBar() =
+        inherit Command()
+        override __.Names         = [|"stepinto"|]
+        override __.Summary       = ""
+        override __.Syntax        = ""
+        override __.Help          = ""
+        override __.Process(args) = func_bar args (gatherOutput stepInto () |> Async.RunSynchronously) |> Async.RunSynchronously
+
+    type MyStepOutBar() =
+        inherit Command()
+        override __.Names         = [|"stepout"|]
+        override __.Summary       = ""
+        override __.Syntax        = ""
+        override __.Help          = ""
+        override __.Process(args) = func_bar args (gatherOutput stepOut () |> Async.RunSynchronously) |> Async.RunSynchronously
+
+    type MyContinueBar() =
+        inherit Command()
+        override __.Names         = [|"continue"|]
+        override __.Summary       = ""
+        override __.Syntax        = ""
+        override __.Help          = ""
+        override __.Process(args) = func_bar args (gatherOutput Continue () |> Async.RunSynchronously) |> Async.RunSynchronously
+
+    [<Sealed; Command>]
+    type MyCommandBar() =
+        inherit MultiCommand()
+        do base.AddCommand<MyRunBar>()
+        do base.AddCommand<MyStepOverBar>()
+        do base.AddCommand<MyStepIntoBar>()
+        do base.AddCommand<MyStepOutBar>()
+        do base.AddCommand<MyContinueBar>()
+        override this.Names   = [|"bar"|]
         override this.Summary = ""
         override this.Syntax  = ""
         override this.Help    = ""
