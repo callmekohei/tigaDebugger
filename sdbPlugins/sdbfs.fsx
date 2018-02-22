@@ -17,6 +17,25 @@ open System
 open System.IO
 open System.Text
 open System.Diagnostics
+open System.Threading
+open System.Threading.Tasks
+
+
+type Throttle<'T> (millisec:int, action:Action<'T>) =
+
+    let mutable signalSequence : int64 = 0L
+
+    member this.Signal (input:'T) : Async<unit> = async {
+
+        let id = Interlocked.Increment( &signalSequence )
+        do! Async.Sleep(millisec)
+        let current = Interlocked.Read( &signalSequence )
+
+        if current = id then
+            action.Invoke(input)
+        else
+            ()
+    }
 
 module Foo =
 
@@ -274,6 +293,8 @@ module Foo =
 
     let gatherOutput f args = async {
 
+        let throttle = new Throttle<ref<bool>>(1000, fun flg -> flg := false )
+
         try
             // Switch from StandardOut to MemoryStream
             let ms = new MemoryStream()
@@ -286,17 +307,17 @@ module Foo =
 
             // read from MemoryStream
             let mutable s = ""
-            let mutable flg = true
-            let sw = new System.Diagnostics.Stopwatch()
-            sw.Start()
-            while flg do
-                s <- gatherOutputImpl(ms,50)
+            let flg = ref true
+            let mutable prevLength = 0
+            while !flg do
                 if s.Contains("exited") || s.Contains("Hit breakpoint at") || s.Contains("suspended") then
-                    flg <- false
-                elif sw.Elapsed.TotalSeconds > 1.5 then
-                    flg <- false
+                    flg := false
                 else
                     s <- gatherOutputImpl(ms,50)
+                    if prevLength <> s.Length then
+                        // set flg = false if no input continues in 1000ms.
+                        throttle.Signal( flg ) |> Async.Start
+                    prevLength <- s.Length
 
             // Switch from MemoryStream to StandardOut
             let std = new StreamWriter(Console.OpenStandardOutput())
