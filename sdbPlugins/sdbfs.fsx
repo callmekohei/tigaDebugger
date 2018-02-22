@@ -307,7 +307,7 @@ module Foo =
 
             // read from MemoryStream
             let mutable s = ""
-            let flg = ref true
+            let flg : ref<bool> = ref true
             let mutable prevLength = 0
             while !flg do
                 if s.Contains("exited") || s.Contains("Hit breakpoint at") || s.Contains("suspended") then
