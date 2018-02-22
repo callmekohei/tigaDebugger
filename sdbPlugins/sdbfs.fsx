@@ -256,7 +256,7 @@ module Foo =
         let mutable tmp = int64 0
         let mutable flg = true
 
-        while flg = true do
+        while flg do
 
             System.Threading.Thread.Sleep time_ms
 
@@ -289,7 +289,7 @@ module Foo =
             let mutable flg = true
             let sw = new System.Diagnostics.Stopwatch()
             sw.Start()
-            while flg = true do
+            while flg do
                 s <- gatherOutputImpl(ms,50)
                 if s.Contains("exited") || s.Contains("Hit breakpoint at") || s.Contains("suspended") then
                     flg <- false
