@@ -14,17 +14,11 @@ Tiny debugger clinet for FSharp on Vim8
 ![alt text](./pic/20180217.gif)
 
 ## Requirements
-```
-vim8
+vim8 ( with python3, with terminal )
 
-$ vim --version | grep 'terminal'
-+terminal
+[mono/sdb](https://github.com/mono/sdb)
 
-$ vim --version | grep 'python3'
-+python3
-
-mono/sdb
-```
+[sdbplg](https://github.com/callmekohei/sdbplg)
 
 ## Installing
 
@@ -34,7 +28,7 @@ $ git clone --depth 1 https://github.com/callmekohei/tigaDebugger
 $ git clone --depth 1 https://github.com/roxma/nvim-yarp
 $ git clone --depth 1 https://github.com/roxma/vim-hug-neovim-rpc
 
-// install neovim plugins ( needs for roxma/vim-hug-neovim-rpc )
+// install neovim plugins
 $ pip3 install neovim
 
 // set runtimepath
@@ -43,9 +37,6 @@ $ vim .vimrc
     set runtimepath+=/path/to/tigaDebugger
     set runtimepath+=/path/to/nvim-yarp
     set runtimepath+=/path/to/vim-hug-neovim-rpc
-
-// install mono/sdb plugins
-$ bash build.bash
 ```
 
 ## Usage
