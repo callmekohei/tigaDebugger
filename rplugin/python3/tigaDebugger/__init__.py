@@ -11,8 +11,6 @@ import re
 from tigaDebugger.util import Util
 from tigaDebugger.quickbuffer import Quickbuffer
 
-from tigaDebugger.source.sdb import SDB as td
-
 @ neovim.plugin
 class TigaDebugger(object):
 
@@ -59,37 +57,40 @@ class TigaDebugger(object):
 
     ### set debugger, start and quit
 
-    # @ neovim.function("Tiga_Set_Debugger", sync = False)
-    # def tiga_Set_Debugger(self,args):
-    #
-    #     if   args[0] == 'sdb':
-    #         from tigaDebugger.source.sdb import SDB as td
-    #         self.set_debugerImpl(args,td)
-    #     elif args[0] == 'gdb':
-    #         from tigaDebugger.source.gdb import GDB as td
-    #         self.set_debugerImpl(args,td)
-    #     else:
-    #         self.util.print_cmd('Sorry! Now not avairable!')
-    #
-    #
-    # def set_debugerImpl(self,args,td):
-    #     self.td = td(self.vim)
-    #     self.tiga_already_set_debugger = True
-    #     self.util.print_cmd('set {s}'.format(s=args[0]))
+    @ neovim.function("Tiga_Set_Debugger", sync = False)
+    def tiga_Set_Debugger(self,args):
+
+        if   args[0] == 'sdb':
+            from tigaDebugger.source.sdb import SDB as td
+            self.set_debugerImpl(args,td)
+        elif args[0] == 'gdb':
+            from tigaDebugger.source.gdb import GDB as td
+            self.set_debugerImpl(args,td)
+        elif args[0] == 'pdb':
+            from tigaDebugger.source.pdb import PDB as td
+            self.set_debugerImpl(args,td)
+        else:
+            self.util.print_cmd('Sorry! Now not avairable!')
+
+
+    def set_debugerImpl(self,args,td):
+        self.td = td(self.vim)
+        self.tiga_already_set_debugger = True
+        self.util.print_cmd('set {s}'.format(s=args[0]))
 
 
     @neovim.function("Tiga", sync=False)
     def tiga(self,args):
 
-        # if self.tiga_already_set_debugger:
-        self.td = td(self.vim)
-        self.nr = self.vim.eval(self.td.tiga(args))
-        self.td.startup_setting(self.nr)
-        self.vim.command("wincmd p")
-        self.tiga_debug_mode = True
-        self.vim.command('write') ### for keymap
-        # else:
-        #     self.util.print_cmd('Please set debugger. (e.g) :TigaSetDebugger gdb')
+        if self.tiga_already_set_debugger:
+        # self.td = td(self.vim)
+            self.nr = self.vim.eval(self.td.tiga(args))
+            self.td.startup_setting(self.nr)
+            self.vim.command("wincmd p")
+            self.tiga_debug_mode = True
+            self.vim.command('write') ### for keymap
+        else:
+            self.util.print_cmd('Please set debugger. (e.g) :TigaSetDebugger gdb')
 
 
     @ neovim.function("Tiga_Quit", sync = False)

@@ -56,7 +56,7 @@ class SDB:
         self.exe = args[0]
 
         cmd       = "sdb"
-        cmd_param = "mycmd run {s}".format(s=args[0])
+        cmd_param = "do , {s1} , foo run {s} ".format(s=args[0],s1="foo display expressions backtrace assembly output")
         ts_param  = '{                               \
               "out_cb"    : function("Tiga_Handler") \
             , "vertical"  : 1                        \
@@ -66,7 +66,7 @@ class SDB:
         return 'term_start(["{c}","{p0}"],{p1})'.format(c=cmd,p0=cmd_param,p1=ts_param)
 
     def tiga_Run(self):
-        return 'mycmd run {file}'.format(file=self.exe)
+        return 'foo run {file}'.format(file=self.exe)
 
     def tiga_Kill(self):
         return 'kill'
@@ -75,16 +75,16 @@ class SDB:
         return 'reset'
 
     def tiga_StepOver(self):
-        return 'mycmd stepover'
+        return 'foo stepover'
 
     def tiga_StepInto(self):
-        return 'mycmd stepinto'
+        return 'foo stepinto'
 
     def tiga_StepOut(self):
-        return 'mycmd stepout'
+        return 'foo stepout'
 
     def tiga_Continue(self):
-        return 'mycmd continue'
+        return 'foo continue'
 
     def tiga_Breakpoints(self):
         fp      = self.util.expand( self.vim.eval( "substitute( expand('%:p') , '\#', '\\#' , 'g' )" ) )
@@ -125,7 +125,7 @@ class SDB:
             for s in lines:
 
                 ### << colored line >>
-                ### e.g #0 [0x00000000] ABC.DEF.bar at /Users/callmekohei/tmp/sample/abc.fsx:5
+                ### e.g #0 [0x00000000] ABC.DEF.foo at /Users/callmekohei/tmp/sample/abc.fsx:5
                 ### e.g #0 [0x00000000] Microsoft.FSharp.Core.PrintfFormat<Microsoft.FSharp.Core.FSharpFunc<int,Microsoft.FSharp.Core.Unit>,System.IO.TextWriter,Microsoft.FSharp.Core.Unit,Microsoft.FSharp.Core.Unit,int>..ctor at /private/tmp/mono--fsharp-20170917-21849-5wz89g/src/fsharp/FSharp.Core/printf.fs:9 (no source)
                 if s != '' and '[0x' in s and not ('no source' in s ):
 
@@ -203,7 +203,7 @@ class SDB:
         #      foo
         #  (sdb)         <---+
         #      step out      |
-        #      bar           |
+        #      foo           |
         #  (sdb)         <---+
 
         reversed_lst = lst[::-1]

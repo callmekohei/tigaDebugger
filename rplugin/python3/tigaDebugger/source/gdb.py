@@ -56,6 +56,8 @@ class GDB:
 
     def tiga(self,args):
 
+        self.args = args
+
         cmd       = "gdb"
         cmd_p0    = "-quiet"
         cmd_p1    = "{s}".format(s=args[0])
@@ -65,10 +67,11 @@ class GDB:
             , "term_name" : "tigaDebugger-terminal"  \
         }'
 
-        return 'term_start(["{c}","{p0}", "{p1}"],{p2})'.format(c=cmd,p0=cmd_p0,p1=cmd_p1,p2=ts_param)
+        # return 'term_start(["{c}","{p0}", "{p1}"],{p2})'.format(c=cmd,p0=cmd_p0,p1=cmd_p1,p2=ts_param)
+        return 'term_start(["gdb","/usr/local/bin/python3"],{p2})'.format(c=cmd,p0=cmd_p0,p1=cmd_p1,p2=ts_param)
 
     def tiga_Run(self):
-        return 'run'
+        return 'run {file}'.format(file=self.args[0])
 
     def tiga_Kill(self):
         return ''

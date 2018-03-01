@@ -26,8 +26,8 @@ augroup tigaDebugger
     let s:defalutKeymap_normal_ctrl_y = maparg('<C-y>','n')
     let s:defalutKeymap_normal_ctrl_t = maparg('<C-t>','n')
 
-    autocmd BufNewFile,BufRead *.c,*.fs,*.fsx,*.cs call s:command_custom()
-    autocmd BufNewFile,BufRead,BufWrite *.c,*.fs,*.fsx,*.cs call s:nnoremap_custom()
+    autocmd BufNewFile,BufRead *.c,*.fs,*.fsx,*.cs,*.py call s:command_custom()
+    autocmd BufNewFile,BufRead,BufWrite *.c,*cs,*.fs,*.fsx,*.py call s:nnoremap_custom()
 
 augroup END
 
@@ -38,7 +38,7 @@ function! s:command_custom() abort
     command! -nargs=? -buffer TigaCommand : call Tiga_Command(<f-args>)
 
     " start and quit
-    " command! -nargs=? -buffer -complete=customlist,DebuggerList TigaSetDebugger : call Tiga_Set_Debugger(<f-args>)
+    command! -nargs=? -buffer -complete=customlist,DebuggerList TigaSetDebugger : call Tiga_Set_Debugger(<f-args>)
     command! -nargs=? -buffer -complete=file Tiga : call Tiga(<f-args>)
     command! -buffer TigaQuit                     : call Tiga_Quit()
 
@@ -53,9 +53,9 @@ function! s:command_custom() abort
 
 endfunction
 
-" function! DebuggerList(lead, line, pos)
-"   return ["sdb","gdb"]
-" endfunction
+function! DebuggerList(lead, line, pos)
+  return ["sdb","gdb","pdb"]
+endfunction
 
 
 function! s:nnoremap_custom() abort
@@ -223,7 +223,9 @@ function! s:tiga_WatchDel_wrap() abort
     endif
 endfunction
 
+
 let g:list = []
+
 function! Tiga_Handler(ch,msg) abort
 
     if len(g:list) > 1000
@@ -231,6 +233,22 @@ function! Tiga_Handler(ch,msg) abort
     endif
 
     if stridx(a:msg,'(sdb)') > 0 || stridx(a:msg,'(gdb)') > 0
+        call add(g:list,a:msg)
+        call Tiga_HandlerPy(g:list)
+    endif
+
+    call add(g:list, a:msg)
+
+endfunction
+
+" TODO: improve more
+function! Tiga_Handler_Python(ch,msg) abort
+
+    if len(g:list) > 1000
+        g:list = []
+    endif
+
+    if stridx(a:msg,'(Pdb++)') > 0
         call add(g:list,a:msg)
         call Tiga_HandlerPy(g:list)
     endif
@@ -263,9 +281,9 @@ if !has('nvim')
 
 
     " set debugger, start and quit
-    " func! Tiga_Set_Debugger(v)
-    "     return s:tigaDebugger.call('tiga_Set_Debugger',a:v)
-    " endfunc
+    func! Tiga_Set_Debugger(v)
+        return s:tigaDebugger.call('tiga_Set_Debugger',a:v)
+    endfunc
 
     func! Tiga(v)
         return s:tigaDebugger.call('tiga',a:v)
