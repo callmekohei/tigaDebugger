@@ -33,6 +33,22 @@ $ vim .vimrc
     set runtimepath+=/path/to/vim-hug-neovim-rpc
 ```
 
+## Setting
+
+change readline for stable running
+
+```shell
+$ brew install readline
+$ vim /usr/local/lib/sdb/sdb.exe.config
+```
+
+```xml
+<configuration>
+    <dllmap dll="libedit" target="libedit.so.2" os="!windows" />
+    <dllmap dll="libedit" target="/usr/local/Cellar/readline/7.0.3_1/lib/libreadline.dylib" os="osx" />
+</configuration>
+```
+
 ## Usage
 
 ```shell
