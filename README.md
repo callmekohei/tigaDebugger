@@ -35,7 +35,7 @@ $ vim .vimrc
 
 ## Setting
 
-change readline for stable running
+01 - change readline for stable running
 
 ```shell
 $ brew install readline
@@ -47,6 +47,12 @@ $ vim /usr/local/lib/sdb/sdb.exe.config
     <dllmap dll="libedit" target="libedit.so.2" os="!windows" />
     <dllmap dll="libedit" target="/usr/local/Cellar/readline/7.0.3_1/lib/libreadline.dylib" os="osx" />
 </configuration>
+```
+02 - ambiwidth is single
+
+```vim
+" vimrc
+set ambiwidth=single
 ```
 
 ## Usage
